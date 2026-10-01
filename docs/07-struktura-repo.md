@@ -108,7 +108,7 @@ hydrodesk/water_quality/
 - **Nazewnictwo**: kod i identyfikatory po angielsku, teksty UI i komunikaty po polsku (gettext).
 - **Migracje**: każda zmiana schematu = migracja Django; polityki RLS i role w migracjach, nie ręcznie. `makemigrations --check` w CI.
 - **Commity**: Conventional Commits (`feat:`, `fix:`, `docs:` …).
-- **Gałęzie**: `main` chroniony; praca na `poc` i gałęziach funkcjonalnych (`feat/...`) z PR do `poc`.
+- **Gałęzie**: `main` chroniony; praca na `poc` i gałęziach `feat/HD-XXX-opis` z PR do `poc`. Zamknięty scope = tag `scope/SC-XX` na `poc` (patrz [08-zadania.md](08-zadania.md)).
 
 ## 3. Uruchomienie lokalne (docelowo)
 

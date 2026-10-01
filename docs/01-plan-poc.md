@@ -41,6 +41,8 @@ PoC **nie** jest wersją produkcyjną — ale fundamenty (model danych, tenancy,
 
 ## 3. Etapy
 
+Rozbicie etapów na testowalne scope'y i atomowe tickety z zależnościami: [08-zadania.md](08-zadania.md).
+
 Każdy etap kończy się działającym przyrostem (demo). Szacunki dla 1–2 deweloperów.
 
 ### Etap 0 — Szkielet projektu (≈ 2–3 dni)

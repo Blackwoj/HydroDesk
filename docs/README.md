@@ -12,6 +12,7 @@ Indeks dokumentów projektowych dla Proof of Concept systemu GEAQUA HydroDesk.
 | [05-silnik-regul-i-alerty.md](05-silnik-regul-i-alerty.md) | Reguły, alerty, statusy, deduplikacja, harmonogram zadań |
 | [06-bezpieczenstwo.md](06-bezpieczenstwo.md) | Uwierzytelnianie, RBAC, izolacja klientów, audyt, backup |
 | [07-struktura-repo.md](07-struktura-repo.md) | Struktura katalogów, konwencje, uruchomienie lokalne |
+| [08-zadania.md](08-zadania.md) | Backlog: scope'y (testowalne przyrosty), atomowe tickety, zależności, fale |
 | [adr/](adr/) | Decyzje architektoniczne (ADR) |
 
 ## Kluczowe decyzje (skrót)
