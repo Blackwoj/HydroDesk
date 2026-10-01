@@ -1,4 +1,5 @@
-from django.urls import path
+from django.urls import path, re_path
+from django.views.generic import RedirectView
 
 from . import views
 
@@ -23,4 +24,6 @@ urlpatterns = [
     path("konsultacje/nowa/", views.consultation_new, name="consultation_new"),
     path("raporty/", views.reports, name="reports"),
     path("raporty/generuj/", views.report_generate, name="report_generate"),
+    # makieta: każdy nieznany adres (np. ucięty link z komunikatora) prowadzi do aplikacji
+    re_path(r"^(?!static/).*$", RedirectView.as_view(pattern_name="dashboard", query_string=False)),
 ]
