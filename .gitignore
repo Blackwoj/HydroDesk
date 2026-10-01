@@ -219,3 +219,5 @@ __marimo__/
 
 # Playwright MCP artifacts
 .playwright-mcp/
+
+staticfiles/

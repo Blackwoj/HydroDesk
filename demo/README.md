@@ -48,3 +48,30 @@ demo/
 ```
 
 Biblioteki JS (HTMX, Chart.js) ładowane z CDN — w docelowym systemie serwowane lokalnie (CSP).
+
+## Wystawienie publiczne (Cloudflare Tunnel)
+
+Makieta jest wystawiona pod https://hydro.wnikiel.pl przez tunel `local-django` z tego komputera.
+
+```bash
+# 1. serwer makiety (gunicorn, DEBUG=0, port 8100)
+PUBLIC_HOST=hydro.wnikiel.pl ./serve.sh
+
+# 2. tunel (w drugim terminalu)
+cloudflared tunnel --config ~/.cloudflared/hydro.yml run local-django
+```
+
+`~/.cloudflared/hydro.yml`:
+
+```yaml
+protocol: http2
+tunnel: 070a6ab4-f997-4ed8-8d66-6c3ade1c4ef0
+credentials-file: /Users/wojciechnikiel/.cloudflared/070a6ab4-f997-4ed8-8d66-6c3ade1c4ef0.json
+ingress:
+  - hostname: hydro.wnikiel.pl
+    service: http://127.0.0.1:8100
+  - service: http_status:404
+```
+
+Rekord DNS `hydro.wnikiel.pl` → tunel utworzony raz: `cloudflared tunnel route dns local-django hydro.wnikiel.pl`.
+Strona działa tylko, gdy komputer jest włączony i oba procesy działają.

@@ -1,11 +1,29 @@
-"""Ustawienia makiety UI — bez bazy danych, tylko do podglądu wyglądu."""
+"""Ustawienia makiety UI — bez bazy danych, tylko do podglądu wyglądu.
+
+Lokalnie: domyślnie DEBUG=1. Publicznie (np. przez Cloudflare Tunnel):
+    DEBUG=0 PUBLIC_HOST=hydro.wnikiel.pl SECRET_KEY=... ./serve.sh
+"""
+import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = "mockup-only-not-a-secret"
-DEBUG = True
-ALLOWED_HOSTS = ["*"]
+DEBUG = os.environ.get("DEBUG", "1") == "1"
+SECRET_KEY = os.environ.get("SECRET_KEY", "mockup-only-not-a-secret" if DEBUG else "")
+if not SECRET_KEY:
+    raise RuntimeError("Ustaw SECRET_KEY przy DEBUG=0")
+
+PUBLIC_HOST = os.environ.get("PUBLIC_HOST", "")
+ALLOWED_HOSTS = ["localhost", "127.0.0.1"] + ([PUBLIC_HOST] if PUBLIC_HOST else [])
+CSRF_TRUSTED_ORIGINS = [f"https://{PUBLIC_HOST}"] if PUBLIC_HOST else []
+
+# Za Cloudflare Tunnel: TLS kończy się na Cloudflare, cloudflared przekazuje X-Forwarded-Proto.
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_HTTPONLY = True
+X_FRAME_OPTIONS = "DENY"
+SECURE_CONTENT_TYPE_NOSNIFF = True
 
 INSTALLED_APPS = [
     "django.contrib.sessions",
@@ -16,10 +34,12 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "ui.middleware.MockRoleMiddleware",
 ]
 
@@ -53,3 +73,7 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+STORAGES = {
+    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
+}
