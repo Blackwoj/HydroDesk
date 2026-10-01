@@ -75,3 +75,16 @@ ingress:
 
 Rekord DNS `hydro.wnikiel.pl` → tunel utworzony raz: `cloudflared tunnel route dns local-django hydro.wnikiel.pl`.
 Strona działa tylko, gdy komputer jest włączony i oba procesy działają.
+
+### Stałe działanie (launchd)
+
+Serwer, tunel i blokada usypiania działają jako agenci launchd (`~/Library/LaunchAgents/pl.wnikiel.hydro.{server,tunnel,awake}.plist`):
+startują przy logowaniu, wstają po awarii, logi w `~/Library/Logs/hydro-demo/`.
+
+```bash
+launchctl list | grep pl.wnikiel.hydro                                   # status
+launchctl kickstart -k gui/$(id -u)/pl.wnikiel.hydro.server              # restart serwera (np. po zmianach w kodzie)
+for s in server tunnel awake; do launchctl bootout gui/$(id -u)/pl.wnikiel.hydro.$s; done   # wyłączenie
+```
+
+`caffeinate -i -s` blokuje usypianie tylko przy zasilaniu sieciowym; zamknięcie klapy na baterii nadal usypia Maca.
