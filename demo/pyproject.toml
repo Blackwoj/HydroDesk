@@ -1,0 +1,11 @@
+[project]
+name = "hydrodesk-ui-mockup"
+version = "0.1.0"
+description = "Klikalna makieta UI HydroDesk na zmockowanych danych (bez bazy)"
+requires-python = ">=3.12"
+dependencies = [
+  "django>=5.2,<5.3",
+]
+
+[tool.uv]
+package = false

@@ -1,0 +1,8 @@
+<div class="success" id="form-area" role="status">
+  <h2>✓ {{ success_title }}</h2>
+  <p>{{ success_next }}</p>
+  <div class="btn-row">
+    <a class="btn" href="{% url 'dashboard' %}">Wróć na pulpit</a>
+    <a class="btn btn-secondary" href="{{ request.path }}">Dodaj kolejny</a>
+  </div>
+</div>

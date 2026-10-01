@@ -1,0 +1,26 @@
+{% extends "ui/base.html" %}
+{% block title %}Dodaj dokument{% endblock %}
+{% block content %}
+<div class="form-narrow">
+  <div class="page-head"><div><div class="crumbs"><a href="{% url 'dashboard' %}">Pulpit</a> / Dokument</div><h1>Dodaj dokument</h1></div></div>
+  <form id="form-area" class="card" method="post" hx-post="{% url 'document_add' %}" hx-target="this" hx-swap="outerHTML">
+    {% csrf_token %}
+    <label class="dropzone" for="f" style="font-weight:400;cursor:pointer;display:block">
+      <div style="font-size:2rem">📷</div>
+      <strong>Zrób zdjęcie</strong> lub wybierz plik<br><small>PDF, JPG, PNG, CSV, XLSX, ODS · do 25 MB</small>
+      <input id="f" type="file" accept=".pdf,.csv,.xlsx,.ods,image/*" capture="environment" style="display:none">
+    </label>
+    <div class="field" style="margin-top:1rem">
+      <label for="type">Rodzaj dokumentu</label>
+      <select id="type"><option>Sprawozdanie z badań laboratoryjnych</option><option>Protokół pomiaru</option><option>Odczyt wodomierza</option><option>Decyzja / pozwolenie</option><option>Korespondencja z organem</option><option>Inny</option></select>
+    </div>
+    <div class="field">
+      <label for="rel">Dotyczy</label>
+      <select id="rel"><option>Ujęcie Zielona Dolina</option>{% for w in wells %}<option>Studnia {{ w.code }}</option>{% endfor %}</select>
+    </div>
+    <div class="field"><label for="t">Opis <small class="muted">(opcjonalnie)</small></label><input id="t" type="text" placeholder="np. badanie wody surowej — wrzesień"></div>
+    <button class="btn" type="submit" style="width:100%">Dodaj dokument</button>
+    <p class="hint" style="text-align:center">Dokumentów nie da się nadpisać — nowa wersja zachowuje poprzednie.</p>
+  </form>
+</div>
+{% endblock %}

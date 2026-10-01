@@ -1,0 +1,36 @@
+{% extends "ui/base.html" %}{% load ui %}
+{% block title %}{{ alert.title }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><div class="crumbs"><a href="{% url 'alerts' %}">Alerty</a> / {{ alert.category }}</div><h1>{{ alert.title }}</h1></div>
+</div>
+<div class="grid grid-3">
+  <article class="card span-2" style="padding:0">
+    {% include "ui/partials/alert_item.html" with a=alert %}
+  </article>
+  <article class="card">
+    <h2>Szczegóły</h2>
+    <dl class="kv">
+      <dt>Status</dt><dd>Otwarty</dd>
+      <dt>Od</dt><dd>{{ alert.since|date:"d.m.Y" }}</dd>
+      <dt>Reguła</dt><dd><code>{{ alert.category|lower }}.*</code></dd>
+      <dt>Ostatnia ocena</dt><dd>{{ today|date:"d.m.Y" }}, 03:00</dd>
+    </dl>
+    <div class="btn-row" style="margin-top:1rem">
+      {% if is_staff_role %}
+        <button class="btn btn-sm btn-secondary" type="button">Zamknij z komentarzem</button>
+      {% else %}
+        <button class="btn btn-sm btn-ghost" type="button">Przyjąłem do wiadomości</button>
+      {% endif %}
+    </div>
+  </article>
+</div>
+<div class="section-title"><h2>Historia</h2></div>
+<div class="card">
+  <ul class="list">
+    <li><div class="grow"><div class="title">Alert utworzony przez regułę</div><div class="sub">{{ alert.since|date:"d.m.Y" }} 03:00 · system</div></div></li>
+    <li><div class="grow"><div class="title">Ponowna ocena — warunek nadal spełniony</div><div class="sub">{{ today|date:"d.m.Y" }} 03:00 · system</div></div></li>
+  </ul>
+  <p class="note" style="margin-top:.5rem">Gdy warunek przestanie być spełniony (np. po dodaniu pomiaru), alert zamknie się automatycznie.</p>
+</div>
+{% endblock %}

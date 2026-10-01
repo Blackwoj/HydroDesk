@@ -1,0 +1,51 @@
+{% extends "ui/base.html" %}{% load ui %}
+{% block title %}{{ row.name }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="crumbs"><a href="{% url 'water_quality' %}">Jakość wody</a> / Parametr</div>
+    <h1>{{ row.name }} {% status_badge row.status %}</h1>
+    <p>Ostatni wynik: <strong>{{ row.raw }} {{ row.unit }}</strong> · wartość graniczna {{ row.limit }} {{ row.unit }}{% if row.pct is not None %} · {{ row.pct }}% progu{% endif %}</p>
+  </div>
+  <a class="btn btn-secondary" href="{% url 'consultation_new' %}?alert=2">Skonsultuj z hydrogeologiem</a>
+</div>
+
+{% if is_mn %}
+<div class="card" style="padding:0;margin-bottom:1rem">
+  <div class="alert-item sev-watch">
+    <div class="bar"></div>
+    <div class="grow">
+      {% status_badge "watch" %}
+      <h3>Mangan wykazuje trend wzrostowy</h3>
+      <p class="muted" style="margin:0">Aktualna wartość odpowiada 86% przyjętej wartości granicznej. Przy utrzymaniu obecnego tempa wartość graniczna zostałaby osiągnięta w ciągu ok. 9 miesięcy.</p>
+      <div class="next"><strong>Co zrobić:</strong> Obserwuj kolejne wyniki. Jeśli wartość dalej rośnie, skonsultuj się z hydrogeologiem.</div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<article class="card">
+  <div class="card-head"><h2>Wyniki w czasie</h2><small>Punkt poboru: woda surowa, zbiorczo</small></div>
+  <div class="chart-box" style="height:320px"><canvas id="paramChart" aria-label="Wykres parametru {{ row.name }} z wartością graniczną"></canvas></div>
+  <p class="note" style="margin-top:.5rem">Trend automatyczny informuje o zmianie danych, nie diagnozuje jej przyczyny. Interpretację przygotowuje hydrogeolog.</p>
+</article>
+{% endblock %}
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const s = {{ series_json|safe }};
+  new Chart(document.getElementById("paramChart"), {
+    type: "line",
+    data: {
+      labels: s.labels,
+      datasets: [
+        {label: `${s.name} [${s.unit}]`, data: s.values, borderColor: "#0b6e8a", backgroundColor: "#0b6e8a", tension: .25, pointRadius: 5},
+        {label: "Wartość graniczna", data: s.labels.map(() => s.limit), borderColor: "#b42318", borderDash: [6, 6], pointRadius: 0, borderWidth: 2},
+        {label: "80% progu — obserwacja", data: s.labels.map(() => s.limit * .8), borderColor: "#c98a00", borderDash: [2, 4], pointRadius: 0, borderWidth: 1.5}
+      ]
+    },
+    options: {maintainAspectRatio: false, scales: {y: {beginAtZero: true}}}
+  });
+});
+</script>
+{% endblock %}

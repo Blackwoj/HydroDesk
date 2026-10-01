@@ -1,0 +1,60 @@
+{% extends "ui/base.html" %}{% load ui %}
+{% block title %}Pobór wody{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="crumbs">Ujęcie Zielona Dolina · rok rozliczeniowy 2026</div>
+    <h1>Pobór wody</h1>
+  </div>
+  <a class="btn" href="{% url 'abstraction_add' %}">Dodaj pobór</a>
+</div>
+
+<div class="grid grid-3" style="margin-bottom:1rem">
+  <div class="card tile s-ok"><span class="tile-label">Pobór od początku roku</span><div class="big">{{ ab.used|pl_number }} m³</div><small>{{ ab.pct }}% limitu rocznego</small></div>
+  <div class="card tile s-ok"><span class="tile-label">Limit roczny</span><div class="big">{{ ab.limit|pl_number }} m³</div><small>pozwolenie WR.RUZ.421.118.2017</small></div>
+  <div class="card tile s-ok"><span class="tile-label">Prognoza na koniec roku</span><div class="big">{{ ab.forecast_pct }}%</div><small>{{ ab.forecast|pl_number }} m³ — w limicie</small></div>
+</div>
+
+<article class="card" style="margin-bottom:1rem">
+  <div class="card-head"><h2>Pobór narastająco a limit</h2></div>
+  <div class="chart-box" style="height:300px"><canvas id="abChart" aria-label="Wykres poboru narastającego z prognozą i limitem rocznym"></canvas></div>
+  <p class="note" style="margin-top:.5rem">Prognoza liniowa na podstawie dotychczasowego tempa poboru (pierwsza wersja — bez sezonowości).</p>
+</article>
+
+<article class="card">
+  <h2>Limity z pozwolenia</h2>
+  <ul class="list">
+    {% for l in ab.limits %}
+      <li style="flex-wrap:wrap">
+        <div class="grow" style="min-width:200px">
+          <div class="title">{{ l.name }} <small class="muted">{{ l.code }}</small></div>
+          <div class="sub">Limit: {{ l.value }} · wykorzystano: {{ l.used }}</div>
+          {% if l.pct is not None %}<div class="progress {{ l.status }}" style="margin-top:.35rem"><span style="width:{{ l.pct }}%"></span></div>{% endif %}
+        </div>
+        <strong class="nowrap" style="min-width:3rem;text-align:right">{% if l.pct is not None %}{{ l.pct }}%{% endif %}</strong>
+        {% status_badge l.status %}
+      </li>
+    {% endfor %}
+  </ul>
+  <p class="note" style="margin-top:.75rem">Progi ostrzeżeń: 80% / 90% / 100% limitu — konfigurowalne przez hydrogeologa.</p>
+</article>
+{% endblock %}
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const a = {{ ab_json|safe }};
+  new Chart(document.getElementById("abChart"), {
+    data: {
+      labels: a.months,
+      datasets: [
+        {type: "bar", label: "Pobór miesięczny [m³]", data: a.monthly, backgroundColor: "rgba(11,110,138,.25)", yAxisID: "y"},
+        {type: "line", label: "Narastająco [m³]", data: a.cumulative, borderColor: "#0b6e8a", pointRadius: 3, tension: .2},
+        {type: "line", label: "Prognoza [m³]", data: a.forecast_line, borderColor: "#0b6e8a", borderDash: [6, 5], pointRadius: 0},
+        {type: "line", label: "Limit roczny", data: a.months.map(() => a.limit), borderColor: "#b42318", borderDash: [6, 6], pointRadius: 0, borderWidth: 2}
+      ]
+    },
+    options: {maintainAspectRatio: false, scales: {y: {beginAtZero: true}}}
+  });
+});
+</script>
+{% endblock %}

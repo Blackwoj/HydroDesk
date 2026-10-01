@@ -1,0 +1,13 @@
+{% load ui %}<div class="alert-item sev-{{ a.severity }}">
+  <div class="bar" aria-hidden="true"></div>
+  <div class="grow">
+    {% status_badge a.severity %} <small>{{ a.category }} · od {{ a.since|date:"d.m.Y" }}</small>
+    <h3><a href="{% url 'alert_detail' a.id %}">{{ a.title }}</a></h3>
+    <p class="muted" style="margin:0">{{ a.message }}</p>
+    <div class="next"><strong>Co zrobić:</strong> {{ a.next }}</div>
+    <div class="btn-row">
+      <a class="btn btn-sm" href="{% action_href a %}">{{ a.action }}</a>
+      {% if a.consult %}<a class="btn btn-sm btn-secondary" href="{% url 'consultation_new' %}?alert={{ a.id }}">Skonsultuj z hydrogeologiem</a>{% endif %}
+    </div>
+  </div>
+</div>

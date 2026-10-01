@@ -1,0 +1,50 @@
+# HydroDesk — makieta UI
+
+Klikalna makieta interfejsu na **zmockowanych danych**: Django + szablony + HTMX + Chart.js, bez bazy danych.
+Służy do oceny wyglądu i przepływów przed implementacją właściwego systemu (patrz `docs/`). Formularze niczego nie zapisują.
+
+Kod makiety jest celowo uproszczony i **nie jest** szkieletem docelowej aplikacji (struktura docelowa: `docs/07-struktura-repo.md`).
+
+## Uruchomienie
+
+```bash
+cd demo
+uv sync
+uv run python manage.py runserver
+```
+
+Otwórz http://127.0.0.1:8000 i wybierz rolę na ekranie logowania (hasło dowolne).
+
+## Co obejrzeć
+
+| Ekran | URL | Rola |
+|-------|-----|------|
+| Pulpit klienta (5 kafli, działania, alerty) | `/` | klient |
+| „Do zrobienia” — kolejka wyjątków hydrogeologa | `/zespol/` | hydrogeolog |
+| Ujęcie i lista studni | `/ujecia/1/` | dowolna |
+| Karta studni z wykresami (S-2: spadek wydajności) | `/studnie/S-2/` | dowolna |
+| Jakość wody — tabela parametrów, filtry HTMX | `/jakosc/` | dowolna |
+| Parametr z wykresem i wartością graniczną (mangan) | `/jakosc/parametr/Mn/` | dowolna |
+| Pobór — limity, prognoza, wykres narastający | `/pobor/` | dowolna |
+| Pozwolenie i obowiązki | `/pozwolenie/` | dowolna |
+| Alerty i szczegóły alertu | `/alerty/`, `/alerty/2/` | dowolna |
+| Konsultacje (klient: zgłoszenie, hydrogeolog: odpowiedź) | `/konsultacje/` | obie |
+| Raporty („Generuj raport teraz” — HTMX) | `/raporty/` | dowolna |
+| Formularze: pomiar (mobile), analiza, pobór, dokument | `/pomiary/dodaj/`, `/jakosc/dodaj/`, `/pobor/dodaj/`, `/dokumenty/dodaj/` | klient |
+
+Najlepiej oglądać także w trybie telefonu (DevTools → 375 px).
+
+## Struktura
+
+```
+demo/
+├── manage.py
+├── mockup/          # ustawienia (bez bazy, sesja w cookie)
+└── ui/
+    ├── mock_data.py # wszystkie dane makiety
+    ├── views.py
+    ├── templates/ui/
+    └── static/ui/app.css
+```
+
+Biblioteki JS (HTMX, Chart.js) ładowane z CDN — w docelowym systemie serwowane lokalnie (CSP).

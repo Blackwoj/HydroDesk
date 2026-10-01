@@ -1,0 +1,56 @@
+{% extends "ui/base.html" %}{% load ui %}
+{% block title %}Pozwolenie i obowiązki{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="crumbs">Ujęcie Zielona Dolina</div>
+    <h1>Pozwolenie wodnoprawne</h1>
+  </div>
+  {% if is_staff_role %}<div class="btn-row"><a class="btn btn-secondary btn-sm" href="#">Edytuj</a><a class="btn btn-sm" href="#">Dodaj obowiązek</a></div>{% endif %}
+</div>
+
+<div class="grid grid-2">
+  <article class="card">
+    <div class="card-head"><h2>{{ permit.number }}</h2>{% status_badge "info" "Ważne — 6 mies." %}</div>
+    <dl class="kv">
+      <dt>Organ</dt><dd>{{ permit.authority }}</dd>
+      <dt>Data wydania</dt><dd>{{ permit.issued|date:"d.m.Y" }}</dd>
+      <dt>Obowiązuje</dt><dd>{{ permit.valid_from|date:"d.m.Y" }} – {{ permit.valid_to|date:"d.m.Y" }}</dd>
+      <dt>Zakres</dt><dd>{{ permit.scope }}</dd>
+      <dt>Dokument</dt><dd><a href="#">decyzja_WR_118_2017.pdf</a> <small class="muted">(PDF, 2,4 MB)</small></dd>
+    </dl>
+    <div class="next" style="background:var(--info-bg);border-radius:8px;padding:.6rem .8rem;margin-top:1rem">
+      <strong>Co zrobić:</strong> pozwolenie wygasa za 6 miesięcy. Rozpocznij przygotowanie wniosku o nowe pozwolenie.
+      <div class="btn-row" style="margin-top:.5rem"><a class="btn btn-sm" href="{% url 'consultation_new' %}?alert=5">Skonsultuj odnowienie</a></div>
+    </div>
+  </article>
+  <article class="card">
+    <h2>Limity poboru</h2>
+    <ul class="list">
+      {% for l in limits %}
+        <li><div class="grow"><div class="title">{{ l.name }} <small class="muted">{{ l.code }}</small></div></div><strong>{{ l.value }}</strong></li>
+      {% endfor %}
+    </ul>
+    <h3 style="margin-top:1rem">Przypomnienia o końcu ważności</h3>
+    <p class="muted" style="margin:0">24, 12, 6, 3 i 1 miesiąc przed terminem oraz po terminie.</p>
+  </article>
+</div>
+
+<div class="section-title" id="obowiazki"><h2>Obowiązki wynikające z pozwolenia</h2></div>
+<div class="card">
+  <ul class="list">
+    {% for o in obligations %}
+      <li style="flex-wrap:wrap">
+        <div class="grow" style="min-width:220px">
+          <div class="title">{{ o.name }}</div>
+          <div class="sub">Wymagany {{ o.freq }} · termin {{ o.due|date:"d.m.Y" }} ·
+            {% if o.days < 0 %}<strong style="color:var(--action)">po terminie</strong>{% else %}pozostało {{ o.days }} dni{% endif %}</div>
+        </div>
+        {% status_badge o.status %}
+        <a class="btn btn-sm {% if o.status != 'action' %}btn-secondary{% endif %}" href="{% action_href o %}">{{ o.action }}</a>
+      </li>
+    {% endfor %}
+  </ul>
+  <p class="note" style="margin-top:.75rem">Po dodaniu pomiaru, analizy lub dokumentu obowiązek oznacza się jako wykonany automatycznie, a system wylicza następny termin.</p>
+</div>
+{% endblock %}

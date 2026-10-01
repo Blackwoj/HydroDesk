@@ -1,0 +1,50 @@
+{% load static %}<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}HydroDesk{% endblock %} · GEAQUA HydroDesk</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="{% static 'ui/app.css' %}?v=3">
+  <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.4/dist/htmx.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js" defer></script>
+</head>
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+  <div class="mock-banner">Makieta UI na zmockowanych danych — formularze niczego nie zapisują</div>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="logo" href="{% if is_staff_role %}{% url 'staff_dashboard' %}{% else %}{% url 'dashboard' %}{% endif %}">
+        <span class="logo-mark">H</span> HydroDesk <small>GEAQUA</small>
+      </a>
+      <div class="spacer"></div>
+      <div class="userbox">
+        <span><strong>{{ user.name }}</strong><span class="role"> · {{ role_label }}</span></span>
+        <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit">Zmień rolę</button></form>
+      </div>
+    </div>
+  </header>
+  <nav class="mainnav" aria-label="Nawigacja główna">
+    <div class="mainnav-inner">
+      {% if is_staff_role %}
+        <a href="{% url 'staff_dashboard' %}" class="{% if nav == 'staff' %}active{% endif %}">Do zrobienia</a>
+        <a href="{% url 'consultations' %}" class="{% if nav == 'consultations' %}active{% endif %}">Konsultacje</a>
+        <a href="{% url 'dashboard' %}" class="{% if nav == 'dashboard' %}active{% endif %}">Widok klienta</a>
+      {% else %}
+        <a href="{% url 'dashboard' %}" class="{% if nav == 'dashboard' %}active{% endif %}">Pulpit</a>
+      {% endif %}
+      <a href="{% url 'intake' current_intake.id %}" class="{% if nav == 'intake' %}active{% endif %}">Ujęcie i studnie</a>
+      <a href="{% url 'water_quality' %}" class="{% if nav == 'quality' %}active{% endif %}">Jakość wody</a>
+      <a href="{% url 'abstraction' %}" class="{% if nav == 'abstraction' %}active{% endif %}">Pobór</a>
+      <a href="{% url 'permit' %}" class="{% if nav == 'permit' %}active{% endif %}">Pozwolenie i obowiązki</a>
+      <a href="{% url 'alerts' %}" class="{% if nav == 'alerts' %}active{% endif %}">Alerty<span class="count">{{ open_alerts_count }}</span></a>
+      {% if not is_staff_role %}<a href="{% url 'consultations' %}" class="{% if nav == 'consultations' %}active{% endif %}">Konsultacje</a>{% endif %}
+      <a href="{% url 'reports' %}" class="{% if nav == 'reports' %}active{% endif %}">Raporty</a>
+    </div>
+  </nav>
+  <main>
+    {% for message in messages %}<div class="flash" role="status">✓ {{ message }}</div>{% endfor %}
+    {% block content %}{% endblock %}
+  </main>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

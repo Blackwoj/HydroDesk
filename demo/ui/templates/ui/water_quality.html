@@ -1,0 +1,43 @@
+{% extends "ui/base.html" %}{% load ui %}
+{% block title %}Jakość wody{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="crumbs">Ujęcie Zielona Dolina</div>
+    <h1>Jakość wody</h1>
+    <p>Ostatnie badanie: {{ summary.last_sample|date:"d.m.Y" }} · {{ summary.lab }}</p>
+  </div>
+  <div class="btn-row">
+    <a class="btn" href="{% url 'analysis_add' %}">Dodaj analizę</a>
+    <a class="btn btn-secondary" href="{% url 'document_add' %}">Wgraj plik z laboratorium</a>
+  </div>
+</div>
+
+<div class="grid grid-3" style="margin-bottom:1rem">
+  <div class="card tile s-ok"><span class="tile-label">Prawidłowe</span><div class="big">{{ summary.ok }}</div>{% status_badge "ok" %}</div>
+  <div class="card tile s-watch"><span class="tile-label">Wymaga obserwacji</span><div class="big">{{ summary.watch }}</div>{% status_badge "watch" %}</div>
+  <div class="card tile s-ok"><span class="tile-label">Przekroczenia</span><div class="big">{{ summary.action }}</div>{% status_badge "ok" "brak przekroczeń" %}</div>
+</div>
+
+<article class="card">
+  <div class="chips" hx-target="#quality-table" hx-swap="innerHTML" hx-push-url="true">
+    <a class="chip {% if not group and not status %}active{% endif %}" hx-get="{% url 'water_quality' %}" href="{% url 'water_quality' %}">Wszystkie</a>
+    <a class="chip {% if group == 'fizykochemiczne' %}active{% endif %}" hx-get="?group=fizykochemiczne" href="?group=fizykochemiczne">Fizykochemiczne</a>
+    <a class="chip {% if group == 'mikrobiologiczne' %}active{% endif %}" hx-get="?group=mikrobiologiczne" href="?group=mikrobiologiczne">Mikrobiologiczne</a>
+    <a class="chip {% if status == 'watch' %}active{% endif %}" hx-get="?status=watch" href="?status=watch">Tylko wymagające uwagi</a>
+  </div>
+  <div id="quality-table">{% include "ui/partials/quality_table.html" %}</div>
+  <p class="note" style="margin-top:.75rem">Wartość z laboratorium jest zapisywana dokładnie tak, jak w sprawozdaniu (np. „&lt;0,05”). Wartości odniesienia: Rozporządzenie MZ w sprawie jakości wody przeznaczonej do spożycia — wersja obowiązująca w dniu poboru.</p>
+</article>
+{% endblock %}
+{% block scripts %}
+<script>
+document.addEventListener("htmx:afterSwap", () => {
+  const params = new URLSearchParams(location.search);
+  document.querySelectorAll(".chips .chip").forEach(c => {
+    const u = new URL(c.href);
+    c.classList.toggle("active", u.search === location.search || (!location.search && !u.search));
+  });
+});
+</script>
+{% endblock %}

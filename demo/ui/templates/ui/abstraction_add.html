@@ -1,0 +1,32 @@
+{% extends "ui/base.html" %}
+{% block title %}Dodaj pobór{% endblock %}
+{% block content %}
+<div class="form-narrow">
+  <div class="page-head"><div><div class="crumbs"><a href="{% url 'abstraction' %}">Pobór</a> / Nowy wpis</div><h1>Dodaj pobór wody</h1></div></div>
+  <form id="form-area" class="card" method="post" hx-post="{% url 'abstraction_add' %}" hx-target="this" hx-swap="outerHTML">
+    {% csrf_token %}
+    <div class="field">
+      <label>Okres</label>
+      <div class="segmented">
+        <label><input type="radio" name="gran" value="day"><span>Doba</span></label>
+        <label><input type="radio" name="gran" value="month" checked><span>Miesiąc</span></label>
+        <label><input type="radio" name="gran" value="year"><span>Rok</span></label>
+      </div>
+    </div>
+    <div class="field">
+      <label for="period">Miesiąc</label>
+      <input id="period" type="text" value="październik 2026">
+      <div class="hint">Podpowiedź: pierwszy miesiąc bez wpisu.</div>
+    </div>
+    <div class="field">
+      <label for="scope">Dotyczy</label>
+      <select id="scope"><option>Całe ujęcie (wodomierz główny)</option>{% for w in wells %}<option>Studnia {{ w.code }}</option>{% endfor %}</select>
+    </div>
+    <div class="field">
+      <label for="vol">Objętość</label>
+      <div class="input-unit"><input id="vol" type="number" inputmode="numeric" placeholder="np. 27 500"><span>m³</span></div>
+    </div>
+    <button class="btn" type="submit" style="width:100%">Zapisz pobór</button>
+  </form>
+</div>
+{% endblock %}

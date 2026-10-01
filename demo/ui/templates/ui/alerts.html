@@ -1,0 +1,14 @@
+{% extends "ui/base.html" %}
+{% block title %}Alerty{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><div class="crumbs">Ujęcie Zielona Dolina</div><h1>Alerty</h1><p>Każdy alert wynika z konkretnej reguły i prowadzi do czynności, która go rozwiązuje.</p></div>
+</div>
+<div class="chips">
+  <a class="chip {% if not category %}active{% endif %}" href="{% url 'alerts' %}">Wszystkie</a>
+  {% for c in categories %}<a class="chip {% if category == c %}active{% endif %}" href="?category={{ c }}">{{ c }}</a>{% endfor %}
+</div>
+<div class="card" style="padding:0">
+  {% for a in alerts %}{% include "ui/partials/alert_item.html" with a=a %}{% empty %}<p style="padding:1rem" class="muted">Brak alertów w tej kategorii.</p>{% endfor %}
+</div>
+{% endblock %}

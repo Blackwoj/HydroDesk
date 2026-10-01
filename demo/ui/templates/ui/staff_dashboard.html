@@ -1,0 +1,93 @@
+{% extends "ui/base.html" %}{% load ui %}
+{% block title %}Do zrobienia{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="crumbs">Przypisani klienci: 3 · ujęcia: 5 · studnie: 14</div>
+    <h1>Do zrobienia</h1>
+    <p>Tylko wyjątki wymagające pracy człowieka — reszta jest monitorowana automatycznie.</p>
+  </div>
+  <div class="btn-row"><button class="btn btn-ghost btn-sm" type="button">Przelicz reguły</button></div>
+</div>
+
+<div class="grid grid-2">
+  <article class="card">
+    <div class="card-head"><h2>Alerty wysokiego priorytetu</h2><span class="queue-count">{{ q.alerts|length }}</span></div>
+    <ul class="list">
+      {% for a in q.alerts %}
+        <li><div class="grow"><div class="title">{{ a.title }}</div><div class="sub">{{ a.client }} · {{ a.intake }}</div></div>{% status_badge a.severity %}</li>
+      {% endfor %}
+    </ul>
+  </article>
+
+  <article class="card">
+    <div class="card-head"><h2>Konsultacje od klientów</h2><span class="queue-count">{{ consultations|length }}</span></div>
+    <ul class="list">
+      {% for c in consultations %}
+        <li>
+          <div class="grow"><div class="title">{{ c.subject }}</div><div class="sub">{{ c.client }} · {{ c.date|date:"d.m.Y" }}</div></div>
+          {% if c.status == "new" %}{% status_badge "action" "Nowa" %}{% else %}{% status_badge "watch" "W toku" %}{% endif %}
+          <a class="btn btn-sm btn-secondary" href="{% url 'consultations' %}">Odpowiedz</a>
+        </li>
+      {% endfor %}
+    </ul>
+  </article>
+
+  <article class="card">
+    <div class="card-head"><h2>Nowe dane do kontroli</h2><span class="queue-count">{{ q.to_review|length }}</span></div>
+    <ul class="list">
+      {% for r in q.to_review %}
+        <li><div class="grow"><div class="title">{{ r.what }}</div><div class="sub">{{ r.client }} · dodał(a) {{ r.who }}, {{ r.date|date:"d.m.Y" }}</div></div>
+          <a class="btn btn-sm" href="{% url 'water_quality' %}">Sprawdź</a></li>
+      {% endfor %}
+    </ul>
+  </article>
+
+  <article class="card">
+    <div class="card-head"><h2>Ryzyko przekroczenia poboru</h2><span class="queue-count">{{ q.abstraction_risk|length }}</span></div>
+    <ul class="list">
+      {% for r in q.abstraction_risk %}
+        <li><div class="grow"><div class="title">{{ r.client }}</div><div class="sub">{{ r.intake }} · prognoza na koniec roku</div></div>
+          {% if r.forecast > 100 %}{% status_badge "action" "" %}{% else %}{% status_badge "watch" "" %}{% endif %}<strong class="nowrap">{{ r.forecast }}%</strong></li>
+      {% endfor %}
+    </ul>
+  </article>
+
+  <article class="card">
+    <div class="card-head"><h2>Pogarszające się parametry studni</h2><span class="queue-count">{{ q.wells|length }}</span></div>
+    <ul class="list">
+      {% for w in q.wells %}
+        <li><div class="grow"><div class="title">{{ w.well }} — {{ w.issue }}</div><div class="sub">{{ w.client }}</div></div>{% status_badge "watch" %}</li>
+      {% endfor %}
+    </ul>
+  </article>
+
+  <article class="card">
+    <div class="card-head"><h2>Pozwolenia wymagające działań</h2><span class="queue-count">{{ q.permits|length }}</span></div>
+    <ul class="list">
+      {% for p in q.permits %}
+        <li><div class="grow"><div class="title">{{ p.client }}</div><div class="sub">{{ p.intake }} · ważne do {{ p.valid_to|date:"d.m.Y" }}</div></div>
+          {% if p.months <= 3 %}{% status_badge "action" "" %}{% else %}{% status_badge "info" "" %}{% endif %}<span class="nowrap">{{ p.months }} mies.</span></li>
+      {% endfor %}
+    </ul>
+  </article>
+
+  <article class="card">
+    <div class="card-head"><h2>Zaległe obowiązki</h2><span class="queue-count">{{ q.overdue|length }}</span></div>
+    <ul class="list">
+      {% for o in q.overdue %}
+        <li><div class="grow"><div class="title">{{ o.what }}</div><div class="sub">{{ o.client }}</div></div>{% status_badge "action" "" %}<span class="nowrap">{{ o.days }} dni po terminie</span></li>
+      {% endfor %}
+    </ul>
+  </article>
+
+  <article class="card">
+    <div class="card-head"><h2>Braki danych</h2><span class="queue-count">{{ q.missing|length }}</span></div>
+    <ul class="list">
+      {% for x in q.missing %}
+        <li><div class="grow"><div class="title">{{ x.what }}</div><div class="sub">{{ x.client }}</div></div>{% status_badge "no_data" %}</li>
+      {% endfor %}
+    </ul>
+  </article>
+</div>
+{% endblock %}

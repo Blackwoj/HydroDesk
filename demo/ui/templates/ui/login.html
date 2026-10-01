@@ -1,0 +1,39 @@
+{% load static %}<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Logowanie · GEAQUA HydroDesk</title>
+  <link rel="stylesheet" href="{% static 'ui/app.css' %}">
+</head>
+<body>
+<div class="login-wrap">
+  <div class="card login-card">
+    <div class="logo"><span class="logo-mark">H</span> HydroDesk <small class="muted">GEAQUA</small></div>
+    <h1>Zaloguj się</h1>
+    <p class="muted">Nadzór nad ujęciami wód podziemnych.</p>
+    <form method="post">
+      {% csrf_token %}
+      <div class="field">
+        <label for="email">E-mail</label>
+        <input id="email" type="email" value="anna.kowalska@zielonadolina.pl" autocomplete="username">
+      </div>
+      <div class="field">
+        <label for="password">Hasło</label>
+        <input id="password" type="password" value="makieta123" autocomplete="current-password">
+      </div>
+      <label>Makieta — wybierz, jako kto chcesz wejść:</label>
+      <div class="role-pick">
+        {% for key, label in roles.items %}
+          <label><input type="radio" name="role" value="{{ key }}" {% if forloop.first %}checked{% endif %}>
+            <span><strong>{{ label }}</strong><small class="muted">{% for k, u in users.items %}{% if k == key %}{{ u.name }} · {{ u.org }}{% endif %}{% endfor %}</small></span>
+          </label>
+        {% endfor %}
+      </div>
+      <button class="btn" type="submit" style="width:100%">Zaloguj</button>
+      <p class="hint" style="text-align:center;margin-top:.75rem"><a href="#">Nie pamiętam hasła</a></p>
+    </form>
+  </div>
+</div>
+</body>
+</html>

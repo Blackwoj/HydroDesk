@@ -1,0 +1,20 @@
+{% load ui %}<div class="table-wrap">
+  <table>
+    <thead><tr><th>Parametr</th><th class="num">Wynik</th><th>Jednostka</th><th class="num">Wartość graniczna</th><th class="num">% progu</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+      {% for r in rows %}
+        <tr>
+          <td><strong>{{ r.name }}</strong> <small class="muted">{{ r.code }}</small>{% if r.trend == "up" %} <span class="trend-up" title="Trend wzrostowy">↗ trend wzrostowy</span>{% endif %}</td>
+          <td class="num">{{ r.raw }}</td>
+          <td>{{ r.unit }}</td>
+          <td class="num">{{ r.limit }}</td>
+          <td class="num">{% if r.pct is not None %}{{ r.pct }}%{% else %}—{% endif %}</td>
+          <td>{% status_badge r.status %}</td>
+          <td><a href="{% url 'parameter' r.code %}">Wykres</a></td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="7" class="muted">Brak parametrów dla wybranego filtra.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

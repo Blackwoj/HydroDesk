@@ -1,0 +1,62 @@
+{% extends "ui/base.html" %}{% load ui %}
+{% block title %}{{ intake.name }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="crumbs"><a href="{% url 'dashboard' %}">Pulpit</a> / Ujęcie</div>
+    <h1>{{ intake.name }} <small class="muted">({{ intake.code }})</small></h1>
+  </div>
+  {% if is_staff_role %}<div class="btn-row"><a class="btn btn-secondary btn-sm" href="#">Edytuj ujęcie</a><a class="btn btn-sm" href="#">Dodaj studnię</a></div>{% endif %}
+</div>
+
+<div class="grid grid-3">
+  <article class="card" style="grid-column: span 1">
+    <h2>Dane ujęcia</h2>
+    <dl class="kv">
+      <dt>Klient</dt><dd>Wodociągi Gminy Zielona Dolina</dd>
+      <dt>Gmina</dt><dd>Zielona Dolina, pow. tarnowski</dd>
+      <dt>Lokalizacja</dt><dd>X 5 541 820, Y 7 437 950 <small class="muted">(PUWG 1992)</small></dd>
+      <dt>Pozwolenie</dt><dd><a href="{% url 'permit' %}">{{ permit.number }}</a></dd>
+      <dt>Ważne do</dt><dd>{{ permit.valid_to|date:"d.m.Y" }}</dd>
+      <dt>Hydrogeolog</dt><dd>dr Piotr Nowak</dd>
+    </dl>
+  </article>
+  <article class="card" style="grid-column: span 2">
+    <h2>Mapa</h2>
+    <svg viewBox="0 0 600 240" role="img" aria-label="Schematyczna mapa ujęcia z trzema studniami" style="width:100%;height:auto;background:#eef5f0;border-radius:10px">
+      <path d="M0 180 C120 150 200 210 320 170 S520 120 600 150 L600 240 L0 240 Z" fill="#d7ebf3"/>
+      <path d="M40 40 L560 40" stroke="#cfd8dc" stroke-width="10"/>
+      <rect x="250" y="90" width="90" height="50" rx="6" fill="#fff" stroke="#9fb3bd"/>
+      <text x="295" y="120" text-anchor="middle" font-size="12" fill="#4c5f6b">SUW</text>
+      <g font-size="13" font-weight="700">
+        <circle cx="140" cy="100" r="12" fill="#1f7a4d"/><text x="160" y="105" fill="#1b2a33">S-1 ✓</text>
+        <circle cx="420" cy="80" r="12" fill="#c98a00"/><text x="440" y="85" fill="#1b2a33">S-2 ◐</text>
+        <circle cx="470" cy="150" r="12" fill="#5b6770"/><text x="490" y="155" fill="#1b2a33">S-3 ?</text>
+      </g>
+    </svg>
+    <p class="note" style="margin-top:.5rem">W docelowej wersji: mapa Leaflet z warstwą studni z PostGIS.</p>
+  </article>
+</div>
+
+<div class="section-title"><h2>Studnie</h2></div>
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Studnia</th><th>Status</th><th>Ostatni pomiar</th><th class="num">Zw. statyczne [m]</th><th class="num">Wydajność [m³/h]</th><th class="num">Wyd. jedn. [m³/h/m]</th><th></th></tr></thead>
+      <tbody>
+        {% for w in wells %}
+          <tr>
+            <td><a class="title" href="{% url 'well' w.code %}"><strong>{{ w.code }}</strong></a><br><small class="muted">głęb. {{ w.depth|pl_decimal }} m</small></td>
+            <td>{% status_badge w.status w.status_text %}</td>
+            <td>{{ w.last.date|date:"d.m.Y" }}</td>
+            <td class="num">{{ w.last.static|pl_decimal }}</td>
+            <td class="num">{{ w.last.yield|pl_decimal }}</td>
+            <td class="num">{{ w.last.specific|pl_decimal }}</td>
+            <td><a class="btn btn-sm btn-secondary" href="{% url 'measurement_add' %}?well={{ w.code }}">Dodaj pomiar</a></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

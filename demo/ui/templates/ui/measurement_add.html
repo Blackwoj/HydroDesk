@@ -1,0 +1,55 @@
+{% extends "ui/base.html" %}
+{% block title %}Dodaj pomiar{% endblock %}
+{% block content %}
+<div class="form-narrow">
+  <div class="page-head"><div><div class="crumbs"><a href="{% url 'dashboard' %}">Pulpit</a> / Pomiar studni</div><h1>Dodaj pomiar</h1></div></div>
+  <form id="form-area" class="card" method="post" hx-post="{% url 'measurement_add' %}" hx-target="this" hx-swap="outerHTML">
+    {% csrf_token %}
+    <div class="field">
+      <label for="well">Studnia</label>
+      <select id="well" name="well">
+        {% for w in wells %}<option value="{{ w.code }}" {% if w.code == selected_well %}selected{% endif %}>{{ w.code }} — ostatni pomiar {{ w.last.date|date:"d.m.Y" }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="field">
+      <label for="date">Data pomiaru</label>
+      <input id="date" type="date" name="date" value="{{ today|date:'Y-m-d' }}">
+    </div>
+    <div class="field">
+      <label for="static">Zwierciadło statyczne</label>
+      <div class="input-unit"><input id="static" type="number" step="0.01" inputmode="decimal" name="static" placeholder="np. 12,40" oninput="calc()"><span>m p.p.t.</span></div>
+      <div class="hint">Głębokość do wody, mierzona od powierzchni terenu, przed włączeniem pompy.</div>
+    </div>
+    <div class="field">
+      <label for="dynamic">Zwierciadło dynamiczne</label>
+      <div class="input-unit"><input id="dynamic" type="number" step="0.01" inputmode="decimal" name="dynamic" placeholder="np. 17,10" oninput="calc()"><span>m p.p.t.</span></div>
+    </div>
+    <div class="field">
+      <label for="yield">Wydajność</label>
+      <div class="input-unit"><input id="yield" type="number" step="0.1" inputmode="decimal" name="yield" placeholder="np. 42" oninput="calc()"><span>m³/h</span></div>
+    </div>
+    <div class="calc" aria-live="polite">
+      <div><span>Depresja</span><strong id="dd">—</strong></div>
+      <div><span>Wydajność jednostkowa</span><strong id="sy">—</strong></div>
+    </div>
+    <details style="margin:1rem 0">
+      <summary>Więcej (opcjonalnie)</summary>
+      <div class="field" style="margin-top:.75rem"><label for="hours">Czas pracy pompy przed pomiarem</label><div class="input-unit"><input id="hours" type="number" name="hours"><span>h</span></div></div>
+      <div class="field"><label for="notes">Uwagi</label><textarea id="notes" name="notes" rows="2" placeholder="np. pomiar po awarii pompy"></textarea></div>
+    </details>
+    <button class="btn" type="submit" style="width:100%">Zapisz pomiar</button>
+  </form>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function calc() {
+  const s = parseFloat(document.getElementById("static").value);
+  const d = parseFloat(document.getElementById("dynamic").value);
+  const q = parseFloat(document.getElementById("yield").value);
+  const dd = d - s;
+  document.getElementById("dd").textContent = isFinite(dd) ? dd.toFixed(2).replace(".", ",") + " m" : "—";
+  document.getElementById("sy").textContent = isFinite(dd) && dd > 0 && isFinite(q) ? (q / dd).toFixed(2).replace(".", ",") + " m³/h/m" : "—";
+}
+</script>
+{% endblock %}

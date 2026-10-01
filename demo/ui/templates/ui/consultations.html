@@ -1,0 +1,35 @@
+{% extends "ui/base.html" %}{% load ui %}
+{% block title %}Konsultacje{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>Konsultacje</h1><p>{% if is_staff_role %}Zgłoszenia od klientów przypisanych do Ciebie.{% else %}Twoje pytania do hydrogeologa.{% endif %}</p></div>
+  {% if not is_staff_role %}<a class="btn" href="{% url 'consultation_new' %}">Nowe zgłoszenie</a>{% endif %}
+</div>
+<div class="grid grid-3">
+  <div class="card" style="padding:0">
+    {% for c in consultations %}
+      <div class="alert-item {% if c.status == 'new' %}sev-action{% else %}sev-watch{% endif %}">
+        <div class="bar"></div>
+        <div class="grow">
+          {% if c.status == "new" %}{% status_badge "action" "Nowa" %}{% else %}{% status_badge "watch" "W toku" %}{% endif %}
+          <h3>{{ c.subject }}</h3>
+          <div class="sub muted">{{ c.client }} · {{ c.date|date:"d.m.Y" }}</div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+  <article class="card span-2">
+    <div class="card-head"><div><h2>Mangan wykazuje trend wzrostowy</h2><small>Wodociągi Gminy Zielona Dolina · Ujęcie Zielona Dolina · z alertu</small></div>{% status_badge "action" "Nowa" %}</div>
+    <div style="background:var(--bg);border-radius:10px;padding:.75rem 1rem;margin-bottom:.75rem">
+      <strong>Anna Kowalska</strong> <small class="muted">29.09.2026, 14:12</small>
+      <p style="margin:.35rem 0 0">Czy powinniśmy coś zmienić w pracy stacji uzdatniania? Mangan rośnie od roku.</p>
+    </div>
+    {% if is_staff_role %}
+      <div class="field"><label for="reply">Odpowiedź</label><textarea id="reply" rows="4" placeholder="Interpretacja i zalecenia…"></textarea></div>
+      <div class="btn-row"><button class="btn" type="button">Wyślij odpowiedź</button><button class="btn btn-ghost" type="button">Zamknij konsultację</button></div>
+    {% else %}
+      <p class="muted">Hydrogeolog odpowie zwykle w ciągu 2 dni roboczych. Dostaniesz powiadomienie e-mail.</p>
+    {% endif %}
+  </article>
+</div>
+{% endblock %}

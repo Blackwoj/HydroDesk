@@ -1,0 +1,89 @@
+{% extends "ui/base.html" %}{% load ui %}
+{% block title %}Studnia {{ well.code }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="crumbs"><a href="{% url 'dashboard' %}">Pulpit</a> / <a href="{% url 'intake' 1 %}">Ujęcie Zielona Dolina</a> / Studnia</div>
+    <h1>Studnia {{ well.code }} {% status_badge well.status well.status_text %}</h1>
+  </div>
+  <div class="btn-row">
+    <a class="btn" href="{% url 'measurement_add' %}?well={{ well.code }}">Dodaj pomiar</a>
+    <a class="btn btn-secondary" href="{% url 'consultation_new' %}">Skonsultuj</a>
+  </div>
+</div>
+
+{% for a in alerts %}
+  <div class="card" style="padding:0;margin-bottom:1rem">{% include "ui/partials/alert_item.html" with a=a %}</div>
+{% endfor %}
+
+<div class="grid grid-3" style="margin-bottom:1rem">
+  <div class="card"><span class="tile-label">Ostatni pomiar</span><div class="big" style="font-size:1.4rem;font-weight:700">{{ well.last.date|date:"d.m.Y" }}</div></div>
+  <div class="card"><span class="tile-label">Depresja</span><div style="font-size:1.4rem;font-weight:700">{{ well.last.drawdown|pl_decimal }} m</div><small>wyliczona automatycznie</small></div>
+  <div class="card"><span class="tile-label">Wydajność jednostkowa</span><div style="font-size:1.4rem;font-weight:700">{{ well.last.specific|pl_decimal }} m³/h/m</div><small>wyliczona automatycznie</small></div>
+</div>
+
+<article class="card">
+  <div class="card-head"><h2>Zmiany w czasie</h2></div>
+  <div class="chips" role="tablist">
+    <button class="chip active" data-metric="static">Zwierciadło statyczne</button>
+    <button class="chip" data-metric="dynamic">Zwierciadło dynamiczne</button>
+    <button class="chip" data-metric="drawdown">Depresja</button>
+    <button class="chip" data-metric="yield">Wydajność</button>
+    <button class="chip" data-metric="specific">Wydajność jednostkowa</button>
+  </div>
+  <div class="chart-box"><canvas id="wellChart" aria-label="Wykres pomiarów studni"></canvas></div>
+  <p class="note" style="margin-top:.5rem">Komunikaty automatyczne opisują obserwowane zjawisko. Ocenę przyczyn wykonuje hydrogeolog.</p>
+</article>
+
+<div class="grid grid-2" style="margin-top:1rem">
+  <article class="card">
+    <h2>Historia pomiarów</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Data</th><th class="num">Stat. [m]</th><th class="num">Dyn. [m]</th><th class="num">Depr. [m]</th><th class="num">Q [m³/h]</th><th>Źródło</th></tr></thead>
+        <tbody>
+          {% for r in history %}
+            <tr><td>{{ r.date }}</td><td class="num">{{ r.static|pl_decimal }}</td><td class="num">{{ r.dynamic|pl_decimal }}</td><td class="num">{{ r.drawdown|pl_decimal }}</td><td class="num">{{ r.yield|pl_decimal }}</td><td><small>{{ r.source }}</small></td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </article>
+  <article class="card">
+    <h2>Obowiązki dla studni</h2>
+    {% if obligations %}
+      <ul class="list">
+        {% for o in obligations %}
+          <li><div class="grow"><div class="title">{{ o.name }}</div><div class="sub">{{ o.freq }} · termin {{ o.due|date:"d.m.Y" }}</div></div>{% status_badge o.status %}</li>
+        {% endfor %}
+      </ul>
+    {% else %}<p class="muted">Brak obowiązków przypisanych do tej studni.</p>{% endif %}
+    <h3 style="margin-top:1rem">Dane studni</h3>
+    <dl class="kv"><dt>Głębokość</dt><dd>{{ well.depth|pl_decimal }} m</dd><dt>Rzędna terenu</dt><dd>214,6 m n.p.m.</dd><dt>Ujęcie</dt><dd>Zielona Dolina</dd></dl>
+  </article>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const s = {{ series_json|safe }};
+  const labels = {static: "Zwierciadło statyczne [m p.p.t.]", dynamic: "Zwierciadło dynamiczne [m p.p.t.]", drawdown: "Depresja [m]", yield: "Wydajność [m³/h]", specific: "Wydajność jednostkowa [m³/h/m]"};
+  const inverted = m => m === "static" || m === "dynamic";
+  const ctx = document.getElementById("wellChart");
+  const chart = new Chart(ctx, {
+    type: "line",
+    data: {labels: s.labels, datasets: [{label: labels.static, data: s.static, borderColor: "#0b6e8a", backgroundColor: "rgba(11,110,138,.1)", fill: true, tension: .25, pointRadius: 4}]},
+    options: {maintainAspectRatio: false, plugins: {legend: {display: true}}, scales: {y: {reverse: true}}}
+  });
+  document.querySelectorAll("[data-metric]").forEach(b => b.addEventListener("click", () => {
+    document.querySelectorAll("[data-metric]").forEach(x => x.classList.remove("active"));
+    b.classList.add("active");
+    const m = b.dataset.metric;
+    chart.data.datasets[0].data = s[m];
+    chart.data.datasets[0].label = labels[m];
+    chart.options.scales.y.reverse = inverted(m);
+    chart.update();
+  }));
+});
+</script>
+{% endblock %}

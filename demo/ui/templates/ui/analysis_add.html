@@ -1,0 +1,44 @@
+{% extends "ui/base.html" %}
+{% block title %}Dodaj analizę{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'water_quality' %}">Jakość wody</a> / Nowa analiza</div><h1>Dodaj analizę wody</h1><p>Najprościej: wgraj sprawozdanie z laboratorium. Możesz też wpisać wyniki ręcznie.</p></div></div>
+
+<form id="form-area" method="post" hx-post="{% url 'analysis_add' %}" hx-target="this" hx-swap="outerHTML">
+  {% csrf_token %}
+  <div class="grid grid-2">
+    <div class="card">
+      <h2>1. Plik z laboratorium <small class="muted">(zalecane)</small></h2>
+      <label class="dropzone" for="file" style="font-weight:400;cursor:pointer">
+        <div style="font-size:2rem">📎</div>
+        <strong>Wybierz plik</strong> lub przeciągnij tutaj<br>
+        <small>PDF, zdjęcie, CSV, XLSX, ODS · do 25 MB</small>
+        <input id="file" type="file" name="file" accept=".pdf,.csv,.xlsx,.ods,image/*" style="display:none">
+      </label>
+      <p class="hint">Oryginał zostanie zachowany. Z plików CSV/XLSX/ODS system odczyta wyniki — przed zapisem zobaczysz podgląd.</p>
+      <h3 style="margin-top:1rem">Dane próbki</h3>
+      <div class="field"><label for="d">Data poboru próbki</label><input id="d" type="date" value="2026-09-09"></div>
+      <div class="field"><label for="pt">Punkt poboru</label><select id="pt"><option>Woda surowa — zbiorczo</option><option>S-1</option><option>S-2</option><option>S-3</option><option>Woda uzdatniona</option></select></div>
+      <div class="field"><label for="lab">Laboratorium</label><select id="lab"><option>Laboratorium Wody AQUA-LAB Sp. z o.o.</option><option>WSSE Tarnów</option></select></div>
+    </div>
+    <div class="card">
+      <h2>2. Wyniki</h2>
+      <p class="hint" style="margin-top:0">Wpisz wartość dokładnie jak w sprawozdaniu, np. <code>&lt;0,05</code>. Jednostka uzupełnia się z parametru.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Parametr</th><th>Wynik</th><th>Jedn.</th></tr></thead>
+          <tbody>
+            {% for p in parameters|slice:":6" %}
+              <tr><td>{{ p.name }}</td><td><input type="text" value="{{ p.raw }}" aria-label="Wynik {{ p.name }}" style="min-height:38px;padding:.4rem .6rem"></td><td><small>{{ p.unit }}</small></td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <button class="btn btn-ghost btn-sm" type="button" style="margin-top:.75rem">+ Dodaj parametr</button>
+    </div>
+  </div>
+  <div class="btn-row" style="margin-top:1rem;justify-content:flex-end">
+    <a class="btn btn-ghost" href="{% url 'water_quality' %}">Anuluj</a>
+    <button class="btn" type="submit">Zapisz i przekaż do weryfikacji</button>
+  </div>
+</form>
+{% endblock %}

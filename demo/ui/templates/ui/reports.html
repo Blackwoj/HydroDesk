@@ -1,0 +1,24 @@
+{% extends "ui/base.html" %}{% load ui %}
+{% block title %}Raporty{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><div class="crumbs">Ujęcie Zielona Dolina</div><h1>Raporty</h1><p>Raport automatyczny powstaje 1. dnia każdego miesiąca. Raport ekspercki przygotowuje hydrogeolog.</p></div>
+  <button class="btn" hx-post="{% url 'report_generate' %}" hx-target="#report-list" hx-swap="afterbegin">Generuj raport teraz</button>
+</div>
+<div class="card">
+  <ul class="list" id="report-list">
+    {% for r in reports %}
+      <li>
+        <div class="grow"><div class="title">📄 {{ r.name }}</div><div class="sub">{{ r.kind }} · {{ r.date|date:"d.m.Y" }}</div></div>
+        {% if r.status == "approved" %}{% status_badge "ok" "Zatwierdzony" %}{% else %}{% status_badge "ok" "Gotowy" %}{% endif %}
+        <a class="btn btn-sm btn-secondary" href="#">Pobierz PDF</a>
+      </li>
+    {% endfor %}
+  </ul>
+</div>
+<div class="section-title"><h2>Co zawiera raport automatyczny</h2></div>
+<div class="card">
+  <p>Okres · status ujęcia · jakość wody · pobór i prognoza · najważniejsze trendy · stan studni · pozwolenie · obowiązki · aktywne alerty · kilka wykresów.</p>
+  <p class="note">Raport automatyczny przedstawia fakty i komunikaty reguł — nie zawiera diagnozy przyczyn zjawisk.</p>
+</div>
+{% endblock %}

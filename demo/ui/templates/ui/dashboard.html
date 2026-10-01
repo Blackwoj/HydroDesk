@@ -1,0 +1,101 @@
+{% extends "ui/base.html" %}{% load ui %}
+{% block title %}Pulpit{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="crumbs">{{ user.org|default:"Wodociągi Gminy Zielona Dolina" }}</div>
+    <h1>{{ current_intake.name }}</h1>
+  </div>
+  <select aria-label="Wybierz ujęcie" style="max-width:260px">
+    {% for i in intakes %}<option {% if i.id == current_intake.id %}selected{% endif %}>{{ i.name }}</option>{% endfor %}
+  </select>
+</div>
+
+<section class="summary-banner" aria-live="polite">
+  <div class="sb-icon" aria-hidden="true">!</div>
+  <div>
+    <h2>{{ action_count }} sprawa wymaga działania, {{ watch_count }} do obserwacji</h2>
+    <p>Najpilniejsze: <a href="{% url 'measurement_add' %}?well=S-3">brakuje pomiaru zwierciadła S-3</a> (termin minął wczoraj).</p>
+  </div>
+</section>
+
+<div class="actions-bar">
+  <a class="btn btn-secondary" href="{% url 'analysis_add' %}"><span class="ico">🧪</span>Dodaj analizę</a>
+  <a class="btn btn-secondary" href="{% url 'measurement_add' %}"><span class="ico">📏</span>Dodaj pomiar</a>
+  <a class="btn btn-secondary" href="{% url 'abstraction_add' %}"><span class="ico">💧</span>Dodaj pobór</a>
+  <a class="btn btn-secondary" href="{% url 'document_add' %}"><span class="ico">📄</span>Dodaj dokument</a>
+  <a class="btn btn-consult" href="{% url 'consultation_new' %}"><span class="ico">💬</span>Skonsultuj z hydrogeologiem</a>
+</div>
+
+<div class="grid grid-tiles">
+  {# Jakość wody #}
+  <article class="card tile s-watch">
+    <div class="card-head"><span class="tile-label">Jakość wody</span>{% status_badge "watch" %}</div>
+    <div class="big">{{ quality.ok }} <small style="font-size:1rem">z {{ quality.total }} parametrów prawidłowych</small></div>
+    <ul class="list" style="margin-top:.5rem">
+      <li><span>{% status_badge "watch" "1 wymaga obserwacji" %}</span><a href="{% url 'parameter' 'Mn' %}">Mangan — 86% progu ↗</a></li>
+      <li><span>{% status_badge "ok" "brak przekroczeń" %}</span></li>
+    </ul>
+    <div class="card-foot muted">Ostatnie badanie: {{ quality.last_sample|date:"d.m.Y" }} · <a href="{% url 'water_quality' %}">Wszystkie wyniki</a></div>
+  </article>
+
+  {# Pobór #}
+  <article class="card tile s-ok">
+    <div class="card-head"><span class="tile-label">Pobór wody</span>{% status_badge "ok" %}</div>
+    <div class="big">{{ abstraction.pct }}% <small style="font-size:1rem">limitu rocznego</small></div>
+    <div class="progress" style="margin:.75rem 0 .35rem" aria-label="Wykorzystanie limitu {{ abstraction.pct }}%, prognoza {{ abstraction.forecast_pct }}%">
+      <span style="width:{{ abstraction.pct }}%"></span>
+      <i class="forecast" style="left:{{ abstraction.forecast_pct }}%"></i>
+    </div>
+    <p class="muted" style="margin:0">Prognoza na koniec roku: <strong>{{ abstraction.forecast_pct }}%</strong> ({{ abstraction.forecast|pl_number }} m³)</p>
+    <div class="card-foot"><a href="{% url 'abstraction' %}">Zestawienie poboru</a></div>
+  </article>
+
+  {# Studnie #}
+  <article class="card tile s-watch">
+    <div class="card-head"><span class="tile-label">Studnie</span>{% status_badge "watch" %}</div>
+    <ul class="list">
+      {% for w in wells %}
+        <li>
+          <a class="grow title" href="{% url 'well' w.code %}">{{ w.code }}</a>
+          {% status_badge w.status w.status_text %}
+        </li>
+      {% endfor %}
+    </ul>
+    <div class="card-foot"><a href="{% url 'intake' current_intake.id %}">Karta ujęcia</a></div>
+  </article>
+
+  {# Pozwolenie #}
+  <article class="card tile s-watch">
+    <div class="card-head"><span class="tile-label">Pozwolenie wodnoprawne</span>{% status_badge "info" "Zaplanuj odnowienie" %}</div>
+    <div class="big">{{ permit.months_left }} mies. <small style="font-size:1rem">do końca ważności</small></div>
+    <p class="muted" style="margin:.5rem 0 0">Ważne do <strong>{{ permit.valid_to|date:"d.m.Y" }}</strong></p>
+    <div class="card-foot"><a href="{% url 'permit' %}">Szczegóły pozwolenia</a> · <a href="{% url 'consultation_new' %}?alert=5">Zapytaj o odnowienie</a></div>
+  </article>
+
+  {# Obowiązki #}
+  <article class="card tile s-action span-2">
+    <div class="card-head"><span class="tile-label">Obowiązki</span>{% status_badge "action" "1 po terminie" %}</div>
+    <ul class="list">
+      {% for o in obligations %}
+        <li>
+          <div class="grow">
+            <div class="title">{{ o.name }}</div>
+            <div class="sub">
+              {% if o.days < 0 %}termin minął {{ o.due|date:"d.m.Y" }}{% else %}za {{ o.days }} dni · {{ o.due|date:"d.m.Y" }}{% endif %} · {{ o.freq }}
+            </div>
+          </div>
+          {% status_badge o.status %}
+          <a class="btn btn-sm {% if o.status != 'action' %}btn-secondary{% endif %}" href="{% action_href o %}">{{ o.action }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+    <div class="card-foot"><a href="{% url 'permit' %}#obowiazki">Wszystkie terminy</a></div>
+  </article>
+</div>
+
+<div class="section-title"><h2>Wymaga uwagi</h2><a href="{% url 'alerts' %}">Wszystkie alerty ({{ open_alerts_count }})</a></div>
+<div class="card" style="padding:0">
+  {% for a in alerts %}{% include "ui/partials/alert_item.html" with a=a %}{% endfor %}
+</div>
+{% endblock %}

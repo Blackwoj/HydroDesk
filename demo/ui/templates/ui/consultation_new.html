@@ -1,0 +1,24 @@
+{% extends "ui/base.html" %}{% load ui %}
+{% block title %}Konsultacja{% endblock %}
+{% block content %}
+<div class="form-narrow">
+  <div class="page-head"><div><div class="crumbs"><a href="{% url 'consultations' %}">Konsultacje</a> / Nowa</div><h1>Skonsultuj z hydrogeologiem</h1></div></div>
+  <form id="form-area" class="card" method="post" hx-post="{% url 'consultation_new' %}{% if alert %}?alert={{ alert.id }}{% endif %}" hx-target="this" hx-swap="outerHTML">
+    {% csrf_token %}
+    <div style="background:var(--bg);border-radius:10px;padding:.75rem 1rem;margin-bottom:1rem">
+      <small class="muted">Kontekst zgłoszenia (uzupełniony automatycznie)</small>
+      <dl class="kv" style="margin-top:.35rem">
+        <dt>Ujęcie</dt><dd>Ujęcie Zielona Dolina</dd>
+        {% if alert %}<dt>Dotyczy</dt><dd>{% status_badge alert.severity %} {{ alert.title }}</dd>{% endif %}
+        <dt>Hydrogeolog</dt><dd>dr Piotr Nowak</dd>
+      </dl>
+    </div>
+    <div class="field">
+      <label for="msg">Twoja wiadomość</label>
+      <textarea id="msg" rows="5" placeholder="Opisz, co Cię niepokoi lub o co chcesz zapytać.">{% if alert %}Dzień dobry, prosimy o ocenę sytuacji: {{ alert.title|lower }}. Czy powinniśmy coś zrobić?{% endif %}</textarea>
+    </div>
+    <div class="field"><label for="att">Załącznik <small class="muted">(opcjonalnie)</small></label><input id="att" type="file"></div>
+    <button class="btn" type="submit" style="width:100%">Wyślij do hydrogeologa</button>
+  </form>
+</div>
+{% endblock %}
