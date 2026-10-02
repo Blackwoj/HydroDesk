@@ -13,6 +13,9 @@ Indeks dokumentów projektowych dla Proof of Concept systemu GEAQUA HydroDesk.
 | [06-bezpieczenstwo.md](06-bezpieczenstwo.md) | Uwierzytelnianie, RBAC, izolacja klientów, audyt, backup |
 | [07-struktura-repo.md](07-struktura-repo.md) | Struktura katalogów, konwencje, uruchomienie lokalne |
 | [08-zadania.md](08-zadania.md) | Backlog: scope'y (testowalne przyrosty), atomowe tickety, zależności, fale |
+| [10-slownik-domeny.md](10-slownik-domeny.md) | Słownik domeny PL → nazwy w kodzie |
+| [11-kwestionariusz.md](11-kwestionariusz.md) | Pytania do zleceniodawcy, hydrogeologa i klientów przed implementacją |
+| [../AGENTS.md](../AGENTS.md) | Zasady pracy dla agentów AI i deweloperów |
 | [adr/](adr/) | Decyzje architektoniczne (ADR) |
 
 ## Kluczowe decyzje (skrót)

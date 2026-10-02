@@ -1,0 +1,43 @@
+name: Błąd
+description: Coś działa inaczej niż powinno
+title: "bug: "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: Co się dzieje
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Czego się spodziewano
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Kroki do odtworzenia
+      value: |
+        1.
+    validations:
+      required: true
+  - type: dropdown
+    id: role
+    attributes:
+      label: Rola użytkownika
+      options: [klient, hydrogeolog, operator, administrator, nie dotyczy]
+  - type: dropdown
+    id: isolation
+    attributes:
+      label: Czy widać dane innego klienta?
+      description: Jeśli tak — to błąd krytyczny, oznacz też etykietą `security`
+      options: ["nie", "tak"]
+    validations:
+      required: true
+  - type: textarea
+    id: env
+    attributes:
+      label: Środowisko
+      placeholder: lokalnie / staging, przeglądarka, telefon

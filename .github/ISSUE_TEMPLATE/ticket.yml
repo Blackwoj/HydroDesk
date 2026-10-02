@@ -1,0 +1,54 @@
+name: Ticket (zadanie z backlogu)
+description: Atomowe zadanie do realizacji w jednym PR
+title: "HD-XXX: "
+labels: ["ticket"]
+body:
+  - type: input
+    id: scope
+    attributes:
+      label: Scope
+      placeholder: SC-07
+    validations:
+      required: true
+  - type: dropdown
+    id: size
+    attributes:
+      label: Rozmiar
+      options: ["S (≤ 1 dzień)", "M (1–2 dni)", "L (3–4 dni)"]
+    validations:
+      required: true
+  - type: input
+    id: deps
+    attributes:
+      label: Zależy od
+      description: Numery issues, np. "#12, #15" — ustaw też relację „blocked by”
+  - type: textarea
+    id: goal
+    attributes:
+      label: Cel
+    validations:
+      required: true
+  - type: textarea
+    id: scope_items
+    attributes:
+      label: Zakres
+      description: Lista punktów
+    validations:
+      required: true
+  - type: textarea
+    id: files
+    attributes:
+      label: Główne pliki
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Kryteria akceptacji
+      value: |
+        - [ ]
+    validations:
+      required: true
+  - type: input
+    id: spec
+    attributes:
+      label: Wymagania (sekcje specyfikacji)
+      placeholder: FR-WQ-03, kryt. 4
